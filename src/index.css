@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.pro-sidebar > .pro-sidebar-inner > .pro-sidebar-layout, .pro-sidebar .pro-menu > ul > .pro-sub-menu > .pro-inner-list-item {
+    @apply bg-[#283046];
+}
