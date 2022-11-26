@@ -1,19 +1,26 @@
-import Routes from './routes';
-import {
-  Layouts,
-  Drawer,
-  NavBar
-} from './views/Layouts';
+import Routes from '@/routes';
+import { useAppSelector, useAppDispatch } from '@/app/hooks';
+import { setLoggedIn, selectLoggedIn } from '@/features/user/userSlice';
+import { useEffect, useState } from 'react';
+import useAuth from './custom-hooks/useAuth';
+
 function App() {
-  return (
-    <Layouts>
-      <Drawer/>
-      <div className="w-full mt-4 mx-10">
-        <NavBar/>
-        <Routes/>
-      </div>
-    </Layouts>
-  );
+  const [loading, setLoading] = useState<boolean>(true);
+  const dispatch = useAppDispatch();
+  const loggedIn = useAppSelector(selectLoggedIn);
+  const { attemptLogin } = useAuth();
+
+  useEffect(() => {
+    setLoading(true);
+    attemptLogin().then((loggedIn) => {
+        dispatch(setLoggedIn(loggedIn));
+        setLoading(false);
+      }).catch(() => {
+        setLoading(false);
+      })
+  }, []);
+  return loading ? <div>Loading...</div> : <Routes loggedIn={loggedIn} />
+
 }
 
 export default App;

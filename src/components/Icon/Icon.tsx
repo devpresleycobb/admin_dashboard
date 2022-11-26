@@ -12,6 +12,6 @@ export default function Icon(props: IIcon) {
         className
     } = props
   return <>
-            {icon ? <span className={`material-icons ${className}`} onClick={onClick}>{props.icon}</span> : ''}
+            {icon ? <span className={`material-symbols-rounded ${className}`} onClick={onClick}>{props.icon}</span> : ''}
         </>
 }

@@ -1,15 +1,16 @@
-import { BrowserRouter, Route, Routes as RRoutes } from 'react-router-dom'
-import Auth from '../components/Auth/Auth'
-import Home from '../views/Home'
-import Profile from '../views/Profile'
+import { Route } from 'wouter';
+import Home from '@/views/Home'
+import Profile from '@/views/Profile'
+import { Layouts } from '@/views/Layouts';
+import Drawer from '@/components/Drawer';
+import Auth from '@/apps/Auth';
 
-export default function Routes() {
-  return (
-            <BrowserRouter>
-                <RRoutes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/profile" element={<Profile />} />
-                </RRoutes>
-            </BrowserRouter>
-  )
+export default function Routes({loggedIn}: {loggedIn: boolean}) {
+  return loggedIn ? 
+          <Layouts>
+            <Drawer />
+            <Route path="/" component={Home} />
+            <Route path="/profile" component={Profile} />
+          </Layouts> :
+            <Route path="/" component={Auth} />
 }
