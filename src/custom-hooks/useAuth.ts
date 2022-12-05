@@ -1,5 +1,5 @@
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
-import { selectUserPool, setLoggedIn, setLoginError, setNewPasswordError, setLoading, setIdToken, setCredentials, setUsername, setLoginFormType, setUser, selectUser, selectIdToken } from '@/features/user/userSlice';
+import { selectUserPool, setLoggedIn, setLoginError, setNewPasswordError, setLoading, setIdToken, setCredentials, setLoginFormType, setUser, selectUser } from '@/features/user/userSlice';
 import { AuthenticationDetails, CognitoUser, CognitoUserSession, IAuthenticationCallback, CognitoUserAttribute } from 'amazon-cognito-identity-js';
 import { useGetCredentialsMutation, useCreateUserMutation } from '@/services/auth';
 import Cookies from 'js-cookie';
@@ -9,7 +9,6 @@ import { IIdToken } from "@/interfaces";
 export default function useAuth() {
     const userPool = useAppSelector(selectUserPool);
     const user = useAppSelector(selectUser);
-    const idToken = useAppSelector(selectIdToken);
     const INVALID_USERNAME_OR_PASSWORD = 'Incorrect username or password.';
     const USERNAME_AND_PASSWORD_REQUIRED = 'Username and password are required.';
     const INVALID_NEW_PASSWORD = 'Invalid new password.';
@@ -142,7 +141,7 @@ export default function useAuth() {
         },
         onFailure: (err) => {
             if (err.message === INVALID_USERNAME_OR_PASSWORD) {
-                setLoginError(INVALID_USERNAME_OR_PASSWORD);
+                dispatch(setLoginError(INVALID_USERNAME_OR_PASSWORD));
             }
             if (err.message === 'Password reset required for the user') {
                 dispatch(setLoginFormType('verifyCode'));

@@ -4,7 +4,6 @@ import ForgotPassword from './ForgotPassword';
 import Login from './Login';
 import NewPassword from './NewPassword';
 import VerifyCode from './VerifyCode';
-
 export default function Auth() {
     const formType = useAppSelector(selectLoginFormType);
     const formTypes = {
@@ -14,12 +13,15 @@ export default function Auth() {
         'forgotPassword': <ForgotPassword></ForgotPassword>
     }
     return (
-    <div className="h-screen w-screen bg-gradient-to-r from-cyan-500 to-blue-500">
-        <div className="max-w-md mx-auto flex flex-col justify-center h-screen">
-            <div className="rounded bg-white px-4 pt-4 pb-5">
+        <section className="grid lg:grid-cols-2 items-center h-screen">
+            <div className="p-8 sm:p-10 md:p-20 xl:px-32 xl:py-24 text-center my-auto">
                 {formTypes[formType]}
             </div>
-        </div>
-    </div>
+            <img
+            src="https://images.unsplash.com/photo-1613125700782-8394bec3e89d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8bW91bmF0aW5zfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60"
+            alt="background image"
+            className="w-full h-screen object-cover hidden lg:block"
+            />
+        </section>
     )
 }

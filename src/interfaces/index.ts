@@ -1,4 +1,5 @@
 import { CognitoUserPool, CognitoUserSession } from "amazon-cognito-identity-js"
+import { FieldErrors } from "react-hook-form"
 
 export interface Profile {
     UserAttributes: ProfileAttribute[]
@@ -57,5 +58,18 @@ export interface ITextField {
     name?: string;
     type?: string;
     className?: string;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onChange?: (e: React.ChangeEvent<HTMLInputElement>, isValid: boolean) => void;
+    rules?: ITextFieldInputRule[];
+}
+
+export interface ITextFieldInputRule {
+    rule(arg0: string): boolean;
+    message: string;
+}
+
+export interface IButton {
+    type?: "button" | "submit" | "reset";
+    className?: string;
+    disabled?: boolean;
+    text: string;
 }

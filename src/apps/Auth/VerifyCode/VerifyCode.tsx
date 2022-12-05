@@ -1,47 +1,79 @@
-import { useState } from "react";
-import TextField from "@/components/ui/TextField";
+import { Typography, Input, Button } from "@material-tailwind/react";
+import { useForm, Controller } from "react-hook-form";
+import Error from '@/components/ui/Error';
+import { selectLoading } from "@/features/user/userSlice";
+import { useAppSelector } from "@/app/hooks";
 import useAuth from "@/custom-hooks/useAuth";
 
-export default function VerifyCode() {
-  const [newPassword, setNewPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [code, setCode] = useState<string>("");
-  const [localError, setLocalError] = useState<string>("");
-  const { completeForgottenPasswordFlow } = useAuth();
+export function VerifyCode() {
+  const { handleSubmit, control, formState: { errors }, setValue, getValues } = useForm();
+  const loading = useAppSelector(selectLoading)
+  const { completeForgottenPasswordFlow  } = useAuth();
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    setLocalError('');
-    if (newPassword !== confirmPassword) {
-      setLocalError('Passwords do not match');
-      return;
-    }
-    if (code.length !== 6) {
-      setLocalError('Code must be 6 characters');
-      return;
-    }
-    completeForgottenPasswordFlow(code, newPassword);
-    // submitNewPassword(newPassword);
+  const onSubmit = () => {
+    const { VerifyCode, ConfirmPassword } = getValues();
+    completeForgottenPasswordFlow(VerifyCode, ConfirmPassword);
   }
-  const handleSetNewPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    setNewPassword(e.target.value);
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue('ConfirmPassword', e.target.value);
   }
-  const handleSetConfirmPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    setConfirmPassword(e.target.value);
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue('Password', e.target.value);
   }
-  const handleSetCode = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    setCode(e.target.value);
+  const handleVerificationCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue('VerifyCode', e.target.value);
   }
-
-  return (<>
-    <div className="text-center text-2xl">Verify Code</div>
-    <TextField className="mt-4" placeholder="Verification Code" onChange={handleSetCode}></TextField>
-    <TextField className="mt-4" type="password" placeholder="New Password" onChange={handleSetNewPassword}></TextField>
-    <TextField className="mt-4" type="password" placeholder="Confirm Password" onChange={handleSetConfirmPassword}></TextField>
-    <div className="mt-3 text-center text-red-500">{localError}</div>
-    <button className="block mx-auto bg-blue-400 rounded px-3 py-2 mt-6" onClick={handleSubmit}>Reset Password</button>
-  </>
-  )
+  return <>
+          <Typography variant="h3" color="blue-gray" className="mb-2">
+            Reset Password
+          </Typography>
+          <Typography color="gray" className="mb-16">
+            Enter verification code and set a new password
+          </Typography>
+          <form className="text-left max-w-[24rem] mx-auto" onSubmit={handleSubmit(onSubmit)}>
+            <div className="mb-8">
+              <Controller
+                name="VerifyCode"
+                control={control}
+                rules={{
+                  required: true,
+                  pattern: {
+                    value: /^[0-9]{6}$/i,
+                    message: "Invalid verification code"
+                  }
+                }}
+                render={() => <Input onChange={handleVerificationCodeChange} size="lg" label="Verification Code" type="text" name="verification-code" error={!!errors.VerifyCode} />}
+              />
+              <Error name="VerifyCode" errors={errors} />
+            </div>
+            <div className="mb-8">
+              <Controller
+                name="Password"
+                control={control}
+                rules={{
+                  required: true
+                }}
+                render={() => <Input onChange={handlePasswordChange} size="lg" label="Password" type="password" name="password" error={!!errors.Password} />}
+              />
+              <Error name="Password" errors={errors} />
+            </div>
+            <div className="mb-4">
+              <Controller
+                name="ConfirmPassword"
+                control={control}
+                rules={{ 
+                  required: true,
+                  validate: (value) => value === getValues('Password') || "Passwords don't match" 
+                }}
+                render={() => <Input onChange={handleConfirmPasswordChange} size="lg" label="Confirm Password" type="password" name="confirm-password" error={!!errors.ConfirmPassword} />}
+              />
+              <Error name="ConfirmPassword" errors={errors} />
+            </div>
+            <Button size="lg" type="submit" className="mt-6" fullWidth disabled={loading}>
+              Reset Password
+            </Button>
+          </form>
+        </>
 }
+
+export default VerifyCode;

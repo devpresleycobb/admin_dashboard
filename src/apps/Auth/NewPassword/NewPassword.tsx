@@ -1,45 +1,61 @@
-import React, { useState } from "react";
-import { INewPasswordHandler } from "@/interfaces";
-import { useAppSelector, useAppDispatch } from "@/app/hooks";
-import { selectLoading, selectNewPasswordError, setLoginFormType } from "@/features/user/userSlice";
+import { Typography, Input, Button } from "@material-tailwind/react";
+import { useForm, Controller } from "react-hook-form";
+import Error from '@/components/ui/Error';
+import { selectLoading } from "@/features/user/userSlice";
+import { useAppSelector } from "@/app/hooks";
 import useAuth from "@/custom-hooks/useAuth";
-import TextField from "@/components/ui/TextField";
 
-export default function NewPassword() {
-    const [newPassword, setNewPassword] = useState<string>('');
-    const [confirmPassword, setConfirmPassword] = useState<string>('');
-    const [localError, setLocalError] = useState<string>('');
-    const error = useAppSelector(selectNewPasswordError);
-    const loading = useAppSelector(selectLoading)
-    const dispatch = useAppDispatch();
-    const { submitNewPassword } = useAuth();
+export function NewPassword() {
+  const { handleSubmit, control, formState: { errors }, setValue, getValues } = useForm();
+  const loading = useAppSelector(selectLoading)
+  const { submitNewPassword  } = useAuth();
 
-    const handleBackToLoginClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        e.preventDefault()
-        dispatch(setLoginFormType('login'));
-    }
-    const handleSetNewPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
-        setNewPassword(e.target.value);
-    }
-    const handleSetConfirmPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
-        setConfirmPassword(e.target.value);
-    }
-    const handleSetPassword = (e: React.MouseEvent<HTMLButtonElement>) => {
-        setLocalError('');
-        if (newPassword !== confirmPassword) {
-            setLocalError('Passwords do not match');
-            return;
-        }
-        submitNewPassword(newPassword);
-    }
-    return <div>
-        <div className="text-center text-2xl">New Password</div>
-        <TextField className="mt-4" placeholder="New Password" type="password" onChange={handleSetNewPassword}></TextField>
-        <TextField className="mt-4" placeholder="Confirm Password" type="password" onChange={handleSetConfirmPassword}></TextField>
-        <div className="mt-3 text-center text-red-500">{localError ?? error}</div>
-        <button className="block mx-auto bg-blue-400 rounded px-3 py-2 mt-6" onClick={handleSetPassword}>Set New Password</button>
-        <div className="cursor-pointer" onClick={handleBackToLoginClick}>Back to signIn</div>
-            </div>;
+  const onSubmit = () => {
+    const { ConfirmPassword } = getValues();
+    submitNewPassword(ConfirmPassword);
+  }
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue('ConfirmPassword', e.target.value);
+  }
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue('Password', e.target.value);
+  }
+  return <>
+          <Typography variant="h3" color="blue-gray" className="mb-2">
+            Reset Password
+          </Typography>
+          <Typography color="gray" className="mb-16">
+            Set a new password
+          </Typography>
+          <form className="text-left max-w-[24rem] mx-auto" onSubmit={handleSubmit(onSubmit)}>
+            <div className="mb-8">
+              <Controller
+                name="Password"
+                control={control}
+                rules={{
+                  required: true
+                }}
+                render={() => <Input onChange={handlePasswordChange} size="lg" label="Password" type="password" name="password" error={!!errors.Password} />}
+              />
+              <Error name="Password" errors={errors} />
+            </div>
+            <div className="mb-4">
+              <Controller
+                name="ConfirmPassword"
+                control={control}
+                rules={{ 
+                  required: true,
+                  validate: (value) => value === getValues('Password') || "Passwords don't match" 
+                }}
+                render={() => <Input onChange={handleConfirmPasswordChange} size="lg" label="Confirm Password" type="password" name="confirm-password" error={!!errors.ConfirmPassword} />}
+              />
+              <Error name="ConfirmPassword" errors={errors} />
+            </div>
+            <Button size="lg" type="submit" className="mt-6" fullWidth disabled={loading}>
+              Reset Password
+            </Button>
+          </form>
+        </>
 }
+
+export default NewPassword;
